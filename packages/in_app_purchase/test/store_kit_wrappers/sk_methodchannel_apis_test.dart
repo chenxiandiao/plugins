@@ -9,6 +9,8 @@ import 'package:in_app_purchase/store_kit_wrappers.dart';
 import 'sk_test_stub_objects.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   final FakeIOSPlatform fakeIOSPlatform = FakeIOSPlatform();
 
   setUpAll(() {
@@ -30,9 +32,14 @@ void main() {
         productResponseWrapper.products.first.priceLocale.currencySymbol,
         '\$',
       );
+
       expect(
         productResponseWrapper.products.first.priceLocale.currencySymbol,
         isNot('A'),
+      );
+      expect(
+        productResponseWrapper.products.first.priceLocale.currencyCode,
+        'USD',
       );
       expect(
         productResponseWrapper.invalidProductIdentifiers,
@@ -76,6 +83,10 @@ void main() {
       expect(await SKPaymentQueueWrapper.canMakePayments(), true);
     });
 
+    test('transactions should return a valid list of transactions', () async {
+      expect(await SKPaymentQueueWrapper().transactions(), isNotEmpty);
+    });
+
     test(
         'throws if observer is not set for payment queue before adding payment',
         () async {
@@ -99,7 +110,7 @@ void main() {
       queue.setTransactionObserver(observer);
       await queue.finishTransaction(dummyTransaction);
       expect(fakeIOSPlatform.transactionsFinished.first,
-          equals(dummyTransaction.transactionIdentifier));
+          equals(dummyTransaction.toFinishMap()));
     });
 
     test('should restore transaction', () async {
@@ -128,7 +139,7 @@ class FakeIOSPlatform {
 
   // payment queue
   List<SKPaymentWrapper> payments = [];
-  List<String> transactionsFinished = [];
+  List<Map<String, String>> transactionsFinished = [];
   String applicationNameHasTransactionRestored;
 
   Future<dynamic> onMethodCall(MethodCall call) {
@@ -154,11 +165,13 @@ class FakeIOSPlatform {
       // payment queue
       case '-[SKPaymentQueue canMakePayments:]':
         return Future<bool>.value(true);
+      case '-[SKPaymentQueue transactions]':
+        return Future<List<Map>>.value([buildTransactionMap(dummyTransaction)]);
       case '-[InAppPurchasePlugin addPayment:result:]':
         payments.add(SKPaymentWrapper.fromJson(call.arguments));
         return Future<void>.sync(() {});
       case '-[InAppPurchasePlugin finishTransaction:result:]':
-        transactionsFinished.add(call.arguments);
+        transactionsFinished.add(Map<String, String>.from(call.arguments));
         return Future<void>.sync(() {});
       case '-[InAppPurchasePlugin restoreTransactions:result:]':
         applicationNameHasTransactionRestored = call.arguments;

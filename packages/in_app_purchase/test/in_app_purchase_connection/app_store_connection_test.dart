@@ -6,16 +6,20 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart' show TestWidgetsFlutterBinding;
 import 'package:in_app_purchase/src/in_app_purchase/purchase_details.dart';
 import 'package:test/test.dart';
 
 import 'package:in_app_purchase/src/channel.dart';
 import 'package:in_app_purchase/src/in_app_purchase/app_store_connection.dart';
+import 'package:in_app_purchase/src/in_app_purchase/in_app_purchase_connection.dart';
 import 'package:in_app_purchase/src/in_app_purchase/product_details.dart';
 import 'package:in_app_purchase/store_kit_wrappers.dart';
 import '../store_kit_wrappers/sk_test_stub_objects.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   final FakeIOSPlatform fakeIOSPlatform = FakeIOSPlatform();
 
   setUpAll(() {
@@ -39,18 +43,28 @@ void main() {
       final ProductDetailsResponse response = await connection
           .queryProductDetails(<String>['123', '456', '789'].toSet());
       List<ProductDetails> products = response.productDetails;
-      expect(
-        products.first.id,
-        '123',
-      );
-      expect(
-        products[1].id,
-        '456',
-      );
-      expect(
-        response.notFoundIDs,
-        ['789'],
-      );
+      expect(products.first.id, '123');
+      expect(products[1].id, '456');
+      expect(response.notFoundIDs, ['789']);
+      expect(response.error, isNull);
+    });
+
+    test(
+        'if query products throws error, should get error object in the response',
+        () async {
+      fakeIOSPlatform.queryProductException = PlatformException(
+          code: 'error_code',
+          message: 'error_message',
+          details: {'info': 'error_info'});
+      final AppStoreConnection connection = AppStoreConnection();
+      final ProductDetailsResponse response = await connection
+          .queryProductDetails(<String>['123', '456', '789'].toSet());
+      expect(response.productDetails, []);
+      expect(response.notFoundIDs, ['123', '456', '789']);
+      expect(response.error.source, IAPSource.AppStore);
+      expect(response.error.code, 'error_code');
+      expect(response.error.message, 'error_message');
+      expect(response.error.details, {'info': 'error_info'});
     });
   });
 
@@ -76,12 +90,35 @@ void main() {
       expect(response.error, isNull);
     });
 
+    test('queryPastPurchases should not block transaction updates', () async {
+      fakeIOSPlatform.transactions
+          .add(fakeIOSPlatform.createPurchasedTransaction('foo', 'bar'));
+      Completer completer = Completer();
+      Stream<List<PurchaseDetails>> stream =
+          AppStoreConnection.instance.purchaseUpdatedStream;
+
+      StreamSubscription subscription;
+      subscription = stream.listen((purchaseDetailsList) {
+        if (purchaseDetailsList.first.status == PurchaseStatus.purchased) {
+          completer.complete(purchaseDetailsList);
+          subscription.cancel();
+        }
+      });
+      QueryPurchaseDetailsResponse response =
+          await AppStoreConnection.instance.queryPastPurchases();
+      List<PurchaseDetails> result = await completer.future;
+      expect(result.length, 1);
+      expect(result.first.productID, 'foo');
+      expect(response.error, isNull);
+    });
+
     test('should get empty result if there is no restored transactions',
         () async {
       fakeIOSPlatform.testRestoredTransactionsNull = true;
       QueryPurchaseDetailsResponse response =
           await AppStoreConnection.instance.queryPastPurchases();
       expect(response.pastPurchases, isEmpty);
+      expect(response.error, isNull);
       fakeIOSPlatform.testRestoredTransactionsNull = false;
     });
 
@@ -93,8 +130,9 @@ void main() {
       QueryPurchaseDetailsResponse response =
           await AppStoreConnection.instance.queryPastPurchases();
       expect(response.pastPurchases, isEmpty);
-      expect(response.error.source, PurchaseSource.AppStore);
-      expect(response.error.message['message'], 'errorMessage');
+      expect(response.error.source, IAPSource.AppStore);
+      expect(response.error.message, 'error_test');
+      expect(response.error.details, {'message': 'errorMessage'});
     });
 
     test('receipt error should populate null to verificationData.data',
@@ -115,7 +153,7 @@ void main() {
     test('should refresh receipt data', () async {
       PurchaseVerificationData receiptData =
           await AppStoreConnection.instance.refreshPurchaseVerificationData();
-      expect(receiptData.source, PurchaseSource.AppStore);
+      expect(receiptData.source, IAPSource.AppStore);
       expect(receiptData.localVerificationData, 'refreshed receipt data');
       expect(receiptData.serverVerificationData, 'refreshed receipt data');
     });
@@ -139,7 +177,7 @@ void main() {
         }
       });
       final PurchaseParam purchaseParam = PurchaseParam(
-          productDetails: dummyProductWrapper.toProductDetails(),
+          productDetails: ProductDetails.fromSKProduct(dummyProductWrapper),
           applicationUserName: 'appName');
       await AppStoreConnection.instance
           .buyNonConsumable(purchaseParam: purchaseParam);
@@ -166,7 +204,7 @@ void main() {
         }
       });
       final PurchaseParam purchaseParam = PurchaseParam(
-          productDetails: dummyProductWrapper.toProductDetails(),
+          productDetails: ProductDetails.fromSKProduct(dummyProductWrapper),
           applicationUserName: 'appName');
       await AppStoreConnection.instance
           .buyConsumable(purchaseParam: purchaseParam);
@@ -178,7 +216,7 @@ void main() {
 
     test('buying consumable, should throw when autoConsume is false', () async {
       final PurchaseParam purchaseParam = PurchaseParam(
-          productDetails: dummyProductWrapper.toProductDetails(),
+          productDetails: ProductDetails.fromSKProduct(dummyProductWrapper),
           applicationUserName: 'appName');
       expect(
           () => AppStoreConnection.instance
@@ -190,7 +228,7 @@ void main() {
       fakeIOSPlatform.testTransactionFail = true;
       List<PurchaseDetails> details = [];
       Completer completer = Completer();
-      PurchaseError error;
+      IAPError error;
 
       Stream<List<PurchaseDetails>> stream =
           AppStoreConnection.instance.purchaseUpdatedStream;
@@ -206,15 +244,16 @@ void main() {
         });
       });
       final PurchaseParam purchaseParam = PurchaseParam(
-          productDetails: dummyProductWrapper.toProductDetails(),
+          productDetails: ProductDetails.fromSKProduct(dummyProductWrapper),
           applicationUserName: 'appName');
       await AppStoreConnection.instance
           .buyNonConsumable(purchaseParam: purchaseParam);
 
-      PurchaseError completerError = await completer.future;
-      expect(completerError.code, kPurchaseErrorCode);
-      expect(completerError.source, PurchaseSource.AppStore);
-      expect(completerError.message, {'message': 'an error message'});
+      IAPError completerError = await completer.future;
+      expect(completerError.code, 'purchase_error');
+      expect(completerError.source, IAPSource.AppStore);
+      expect(completerError.message, 'ios_domain');
+      expect(completerError.details, {'message': 'an error message'});
     });
   });
 
@@ -228,7 +267,7 @@ void main() {
       subscription = stream.listen((purchaseDetailsList) {
         details.addAll(purchaseDetailsList);
         purchaseDetailsList.forEach((purchaseDetails) {
-          if (purchaseDetails.status == PurchaseStatus.purchased) {
+          if (purchaseDetails.pendingCompletePurchase) {
             AppStoreConnection.instance.completePurchase(purchaseDetails);
             completer.complete(details);
             subscription.cancel();
@@ -236,7 +275,7 @@ void main() {
         });
       });
       final PurchaseParam purchaseParam = PurchaseParam(
-          productDetails: dummyProductWrapper.toProductDetails(),
+          productDetails: ProductDetails.fromSKProduct(dummyProductWrapper),
           applicationUserName: 'appName');
       await AppStoreConnection.instance
           .buyNonConsumable(purchaseParam: purchaseParam);
@@ -268,6 +307,8 @@ class FakeIOSPlatform {
   List<SKPaymentTransactionWrapper> finishedTransactions;
   bool testRestoredTransactionsNull;
   bool testTransactionFail;
+  PlatformException queryProductException;
+  PlatformException restoreException;
   SKError testRestoredError;
 
   void reset() {
@@ -302,36 +343,38 @@ class FakeIOSPlatform {
     finishedTransactions = [];
     testRestoredTransactionsNull = false;
     testTransactionFail = false;
+    queryProductException = null;
+    restoreException = null;
     testRestoredError = null;
   }
 
-  SKPaymentTransactionWrapper createPendingTransactionWithProductID(String id) {
+  SKPaymentTransactionWrapper createPendingTransaction(String id) {
     return SKPaymentTransactionWrapper(
+        transactionIdentifier: null,
         payment: SKPaymentWrapper(productIdentifier: id),
         transactionState: SKPaymentTransactionStateWrapper.purchasing,
         transactionTimeStamp: 123123.121,
-        transactionIdentifier: id,
         error: null,
         originalTransaction: null);
   }
 
-  SKPaymentTransactionWrapper createPurchasedTransactionWithProductID(
-      String id) {
+  SKPaymentTransactionWrapper createPurchasedTransaction(
+      String productId, String transactionId) {
     return SKPaymentTransactionWrapper(
-        payment: SKPaymentWrapper(productIdentifier: id),
+        payment: SKPaymentWrapper(productIdentifier: productId),
         transactionState: SKPaymentTransactionStateWrapper.purchased,
         transactionTimeStamp: 123123.121,
-        transactionIdentifier: id,
+        transactionIdentifier: transactionId,
         error: null,
         originalTransaction: null);
   }
 
-  SKPaymentTransactionWrapper createFailedTransactionWithProductID(String id) {
+  SKPaymentTransactionWrapper createFailedTransaction(String productId) {
     return SKPaymentTransactionWrapper(
-        payment: SKPaymentWrapper(productIdentifier: id),
+        transactionIdentifier: null,
+        payment: SKPaymentWrapper(productIdentifier: productId),
         transactionState: SKPaymentTransactionStateWrapper.failed,
         transactionTimeStamp: 123123.121,
-        transactionIdentifier: id,
         error: SKError(
             code: 0,
             domain: 'ios_domain',
@@ -344,6 +387,9 @@ class FakeIOSPlatform {
       case '-[SKPaymentQueue canMakePayments:]':
         return Future<bool>.value(true);
       case '-[InAppPurchasePlugin startProductRequest:result:]':
+        if (queryProductException != null) {
+          throw queryProductException;
+        }
         List<String> productIDS =
             List.castFrom<dynamic, String>(call.arguments);
         assert(productIDS is List<String>, 'invalid argument type');
@@ -361,6 +407,9 @@ class FakeIOSPlatform {
         return Future<Map<String, dynamic>>.value(
             buildProductResponseMap(response));
       case '-[InAppPurchasePlugin restoreTransactions:result:]':
+        if (restoreException != null) {
+          throw restoreException;
+        }
         if (testRestoredError != null) {
           AppStoreConnection.observer
               .restoreCompletedTransactionsFailed(error: testRestoredError);
@@ -385,26 +434,26 @@ class FakeIOSPlatform {
         return Future<void>.sync(() {});
       case '-[InAppPurchasePlugin addPayment:result:]':
         String id = call.arguments['productIdentifier'];
-        SKPaymentTransactionWrapper transaction =
-            createPendingTransactionWithProductID(id);
+        SKPaymentTransactionWrapper transaction = createPendingTransaction(id);
         AppStoreConnection.observer
             .updatedTransactions(transactions: [transaction]);
         sleep(const Duration(milliseconds: 30));
         if (testTransactionFail) {
           SKPaymentTransactionWrapper transaction_failed =
-              createFailedTransactionWithProductID(id);
+              createFailedTransaction(id);
           AppStoreConnection.observer
               .updatedTransactions(transactions: [transaction_failed]);
         } else {
           SKPaymentTransactionWrapper transaction_finished =
-              createPurchasedTransactionWithProductID(id);
+              createPurchasedTransaction(id, transaction.transactionIdentifier);
           AppStoreConnection.observer
               .updatedTransactions(transactions: [transaction_finished]);
         }
         break;
       case '-[InAppPurchasePlugin finishTransaction:result:]':
-        finishedTransactions
-            .add(createPurchasedTransactionWithProductID(call.arguments));
+        finishedTransactions.add(createPurchasedTransaction(
+            call.arguments["productIdentifier"],
+            call.arguments["transactionIdentifier"]));
         break;
     }
     return Future<void>.sync(() {});

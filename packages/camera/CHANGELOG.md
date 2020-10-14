@@ -1,3 +1,141 @@
+## 0.5.8+8
+
+* Fixed garbled audio (in video) by setting audio encoding bitrate.
+
+## 0.5.8+7
+
+* Keep handling deprecated Android v1 classes for backward compatibility.
+
+## 0.5.8+6
+
+* Avoiding uses or overrides a deprecated API in CameraPlugin.java.
+
+## 0.5.8+5
+
+* Fix compilation/availability issues on iOS.
+
+## 0.5.8+4
+
+* Fixed bug caused by casting a `CameraAccessException` on Android.
+
+## 0.5.8+3
+
+* Fix bug in usage example in README.md
+
+## 0.5.8+2
+
+* Post-v2 embedding cleanups.
+
+## 0.5.8+1
+
+* Update lower bound of dart dependency to 2.1.0.
+
+## 0.5.8
+
+* Remove Android dependencies fallback.
+* Require Flutter SDK 1.12.13+hotfix.5 or greater.
+
+## 0.5.7+5
+
+* Replace deprecated `getFlutterEngine` call on Android.
+
+## 0.5.7+4
+
+* Add `pedantic` to dev_dependency.
+
+## 0.5.7+3
+
+* Fix an Android crash when permissions are requested multiple times.
+
+## 0.5.7+2
+
+* Remove the deprecated `author:` field from pubspec.yaml
+* Migrate the plugin to the pubspec platforms manifest.
+* Require Flutter SDK 1.10.0 or greater.
+
+## 0.5.7+1
+
+* Fix example null exception.
+
+## 0.5.7
+
+* Fix unawaited futures.
+
+## 0.5.6+4
+
+* Android: Use CameraDevice.TEMPLATE_RECORD to improve image streaming.
+
+## 0.5.6+3
+
+* Remove AndroidX warning.
+
+## 0.5.6+2
+
+* Include lifecycle dependency as a compileOnly one on Android to resolve
+  potential version conflicts with other transitive libraries.
+
+## 0.5.6+1
+
+* Android: Use android.arch.lifecycle instead of androidx.lifecycle:lifecycle in `build.gradle` to support apps that has not been migrated to AndroidX.
+
+## 0.5.6
+
+* Add support for the v2 Android embedding. This shouldn't affect existing
+  functionality.
+
+## 0.5.5+1
+
+* Fix event type check
+
+## 0.5.5
+
+* Define clang modules for iOS.
+
+## 0.5.4+3
+
+* Update and migrate iOS example project.
+
+## 0.5.4+2
+
+* Fix Android NullPointerException on devices with only front-facing camera.
+
+## 0.5.4+1
+
+* Fix Android pause and resume video crash when executing in APIs below 24.
+
+## 0.5.4
+
+* Add feature to pause and resume video recording.
+
+## 0.5.3+1
+
+* Fix too large request code for FragmentActivity users.
+
+## 0.5.3
+
+* Added new quality presets.
+* Now all quality presets can be used to control image capture quality.
+
+## 0.5.2+2
+
+* Fix memory leak related to not unregistering stream handler in FlutterEventChannel when disposing camera.
+
+## 0.5.2+1
+
+* Fix bug that prevented video recording with audio.
+
+## 0.5.2
+
+* Added capability to disable audio for the `CameraController`. (e.g. `CameraController(_, _,
+ enableAudio: false);`)
+
+## 0.5.1
+
+* Can now be compiled with earlier Android sdks below 21 when
+`<uses-sdk tools:overrideLibrary="io.flutter.plugins.camera"/>` has been added to the project
+`AndroidManifest.xml`. For sdks below 21, the plugin won't be registered and calls to it will throw
+a `MissingPluginException.`
+
 ## 0.5.0
 
 * **Breaking Change** This plugin no longer handles closing and opening the camera on Android
