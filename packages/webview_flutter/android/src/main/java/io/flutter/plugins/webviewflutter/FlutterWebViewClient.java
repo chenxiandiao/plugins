@@ -10,10 +10,10 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import com.tencent.smtt.export.external.interfaces.WebResourceError;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.WebResourceErrorCompat;
 import androidx.webkit.WebViewClientCompat;
@@ -63,8 +63,8 @@ class FlutterWebViewClient {
         return "tooManyRequests";
       case WebViewClient.ERROR_UNKNOWN:
         return "unknown";
-      case WebViewClient.ERROR_UNSAFE_RESOURCE:
-        return "unsafeResource";
+//      case WebViewClient.ERROR_UNSAFE_RESOURCE:
+//        return "unsafeResource";
       case WebViewClient.ERROR_UNSUPPORTED_AUTH_SCHEME:
         return "unsupportedAuthScheme";
       case WebViewClient.ERROR_UNSUPPORTED_SCHEME:
@@ -202,8 +202,8 @@ class FlutterWebViewClient {
     };
   }
 
-  private WebViewClientCompat internalCreateWebViewClientCompat() {
-    return new WebViewClientCompat() {
+  private WebViewClient internalCreateWebViewClientCompat() {
+    return new WebViewClient() {
       @Override
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         return FlutterWebViewClient.this.shouldOverrideUrlLoading(view, request);
@@ -230,7 +230,7 @@ class FlutterWebViewClient {
       @SuppressLint("RequiresFeature")
       @Override
       public void onReceivedError(
-          WebView view, WebResourceRequest request, WebResourceErrorCompat error) {
+          WebView view, WebResourceRequest request, WebResourceError error) {
         FlutterWebViewClient.this.onWebResourceError(
             error.getErrorCode(), error.getDescription().toString(), request.getUrl().toString());
       }

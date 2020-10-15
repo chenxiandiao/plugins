@@ -1,0 +1,1 @@
+# x5 混淆配置 start-dontwarn dalvik.**-dontwarn com.tencent.smtt.**-keep class com.tencent.smtt.** {    *;}-keep class com.tencent.tbs.** {    *;}# x5 混淆配置 end

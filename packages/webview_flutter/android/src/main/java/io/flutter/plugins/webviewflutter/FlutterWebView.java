@@ -11,11 +11,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebStorage;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import com.tencent.smtt.sdk.WebChromeClient;
+import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
+import com.tencent.smtt.sdk.WebStorage;
+import com.tencent.smtt.sdk.WebView;
+import com.tencent.smtt.sdk.WebViewClient;
 import androidx.annotation.NonNull;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -83,12 +83,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       Map<String, Object> params,
       View containerView) {
 
-    DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
-    DisplayManager displayManager =
-        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-    displayListenerProxy.onPreWebViewInitialization(displayManager);
+//    DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
+//    DisplayManager displayManager =
+//        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+//    displayListenerProxy.onPreWebViewInitialization(displayManager);
     webView = new InputAwareWebView(context, containerView);
-    displayListenerProxy.onPostWebViewInitialization(displayManager);
+//    displayListenerProxy.onPostWebViewInitialization(displayManager);
 
     platformThreadHandler = new Handler(context.getMainLooper());
     // Allow local storage.
@@ -284,7 +284,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     }
     webView.evaluateJavascript(
         jsString,
-        new android.webkit.ValueCallback<String>() {
+        new com.tencent.smtt.sdk.ValueCallback<String>() {
           @Override
           public void onReceiveValue(String value) {
             result.success(value);
