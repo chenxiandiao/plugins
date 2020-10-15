@@ -1,10 +1,6 @@
-## 1.0.2
-
-* Android Code Inspection and Clean up.
-
 ## 1.0.1
 
-* Add documentation for `WebViewPlatformCreatedCallback`.
+* base on webview_flutter 1.0.2 and fix ios bug
 
 ## 1.0.0 - Out of developer preview 🎉.
 
