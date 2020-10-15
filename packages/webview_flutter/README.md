@@ -1,6 +1,6 @@
-# WebView for Flutter
+# WebView for Flutter used x5 core
 
-[![pub package](https://img.shields.io/pub/v/webview_flutter.svg)](https://pub.dartlang.org/packages/webview_flutter)
+[![pub package](https://img.shields.io/pub/v/webview_flutter.svg)](https://pub.dartlang.org/packages/webview_flutter_x5)
 
 A Flutter plugin that provides a WebView widget.
 
