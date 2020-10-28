@@ -1,3 +1,6 @@
+## 1.0.2
+fix input_textfield crash in android 10 when the input_textfield has focus and user push a new page above it.
+
 ## 1.0.1
 
 * base on webview_flutter 1.0.2 and fix ios bug
