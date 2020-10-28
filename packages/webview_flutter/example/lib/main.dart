@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter_x5/webview_flutter.dart';
 
+import 'base/input_textfield_box.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -32,6 +34,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
+  FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+  }
 
   void _incrementCounter() {
     setState(() {
@@ -101,7 +110,10 @@ class _MyHomePageState extends State<MyHomePage> {
               height: 40.0,
             ),
             GestureDetector(
-              onTap: () {
+              onTap: () async {
+                if(_focusNode.hasFocus){
+                  _focusNode.unfocus();
+                }
                 Navigator.push(context, new MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
@@ -120,6 +132,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   '我的学习卡',
                 ),
               ),
+            ),
+            TEInputTextFieldBox(
+              horizonMargin: 0.0,
+              placeHolderString: '请输入兑换码',
+              focusNode: _focusNode,
+              // onChanged: _inputChange,
+              // controller: _controller,
             ),
           ],
         ),
