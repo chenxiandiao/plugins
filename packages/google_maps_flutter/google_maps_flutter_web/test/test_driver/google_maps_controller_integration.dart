@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+// @dart = 2.9
+
 import 'dart:async';
 
 import 'package:integration_test/integration_test.dart';
@@ -146,7 +148,13 @@ void main() {
             {'circleId': 'circle-1'}
           ],
           'markersToAdd': [
-            {'markerId': 'marker-1'}
+            {
+              'markerId': 'marker-1',
+              'infoWindow': {
+                'title': 'title for test',
+                'snippet': 'snippet for test',
+              },
+            },
           ],
           'polygonsToAdd': [
             {
@@ -157,6 +165,22 @@ void main() {
                 [43.354469, -5.851318],
                 [43.354762, -5.850824],
               ],
+            },
+            {
+              'polygonId': 'polygon-2-with-holes',
+              'points': [
+                [43.355114, -5.851333],
+                [43.354797, -5.851860],
+                [43.354469, -5.851318],
+                [43.354762, -5.850824],
+              ],
+              'holes': [
+                [
+                  [41.354797, -6.851860],
+                  [41.354469, -6.851318],
+                  [41.354762, -6.850824],
+                ]
+              ]
             },
           ],
           'polylinesToAdd': [
@@ -191,8 +215,35 @@ void main() {
 
         expect(capturedCircles.first.circleId.value, 'circle-1');
         expect(capturedMarkers.first.markerId.value, 'marker-1');
+        expect(capturedMarkers.first.infoWindow.snippet, 'snippet for test');
+        expect(capturedMarkers.first.infoWindow.title, 'title for test');
         expect(capturedPolygons.first.polygonId.value, 'polygon-1');
+        expect(capturedPolygons.elementAt(1).polygonId.value,
+            'polygon-2-with-holes');
+        expect(capturedPolygons.elementAt(1).holes, isNot(null));
         expect(capturedPolylines.first.polylineId.value, 'polyline-1');
+      });
+
+      testWidgets('empty infoWindow does not create InfoWindow instance.',
+          (WidgetTester tester) async {
+        controller = _createController(options: {
+          'markersToAdd': [
+            {
+              'markerId': 'marker-1',
+              'infoWindow': {},
+            },
+          ],
+        });
+        controller.debugSetOverrides(
+          markers: markers,
+        );
+
+        controller.init();
+
+        final capturedMarkers =
+            verify(markers.addMarkers(captureAny)).captured[0] as Set<Marker>;
+
+        expect(capturedMarkers.first.infoWindow, isNull);
       });
 
       group('Initialization options', () {
@@ -390,6 +441,8 @@ void main() {
       group('map.projection methods', () {
         // These are too much for dart mockito, can't mock:
         // map.projection.method() (in Javascript ;) )
+
+        // Caused https://github.com/flutter/flutter/issues/67606
       });
     });
 

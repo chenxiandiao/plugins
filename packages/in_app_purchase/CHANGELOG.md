@@ -1,3 +1,27 @@
+## 0.3.5+1
+
+* Update the example app: remove the deprecated `RaisedButton` and `FlatButton` widgets.
+
+## 0.3.5
+
+* [Android] Fixed: added support for the SERVICE_TIMEOUT (-3) response code.
+
+## 0.3.4+18
+
+* Fix outdated links across a number of markdown files ([#3276](https://github.com/flutter/plugins/pull/3276))
+
+## 0.3.4+17
+
+* Update Flutter SDK constraint.
+
+## 0.3.4+16
+
+* Add Dartdocs to all public APIs.
+
+## 0.3.4+15
+
+* Update android compileSdkVersion to 29.
+
 ## 0.3.4+14
 
 * Add test target to iOS example app Podfile

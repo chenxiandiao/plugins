@@ -1,3 +1,24 @@
+## 0.1.0-nullsafety.1
+
+* Bump win32 dependency to latest version.
+
+## 0.1.0-nullsafety
+
+* Migrate to null safety
+
+## 0.0.4+4
+
+* Update Flutter SDK constraint.
+
+## 0.0.4+3
+
+* Remove unused `test` dependency.
+* Update Dart SDK constraint in example.
+
+## 0.0.4+2
+
+* Check in windows/ directory for example/
+
 ## 0.0.4+1
 
 * Add getPath to the stub, so that the analyzer won't complain about
