@@ -6,16 +6,22 @@ package io.flutter.plugins.webviewflutter;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.display.DisplayManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+
+import com.tencent.smtt.sdk.ValueCallback;
 import com.tencent.smtt.sdk.WebChromeClient;
 import com.tencent.smtt.export.external.interfaces.WebResourceRequest;
 import com.tencent.smtt.sdk.WebStorage;
 import com.tencent.smtt.sdk.WebView;
 import com.tencent.smtt.sdk.WebViewClient;
+
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
@@ -23,12 +29,15 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.platform.PlatformView;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+
 public class FlutterWebView implements PlatformView, MethodCallHandler {
   private static final String JS_CHANNEL_NAMES_FIELD = "javascriptChannelNames";
+  private final WebViewFactory webViewFactory;
   private final InputAwareWebView webView;
   private final MethodChannel methodChannel;
   private final FlutterWebViewClient flutterWebViewClient;
@@ -72,6 +81,64 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
       return true;
     }
+    @Keep
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)//For Android 3.0+
+    public void openFileChooser(ValueCallback uploadMsg) {
+      webViewFactory.mUploadMessage = uploadMsg;
+      Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+      i.addCategory(Intent.CATEGORY_OPENABLE);
+      i.setType("image/*");
+      webViewFactory.getActivity().startActivityForResult(Intent.createChooser(i, "File Chooser"),
+              webViewFactory.FILECHOOSER_RESULTCODE);
+    }
+
+    @Keep
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)//For Android 3.0+
+    public void openFileChooser(ValueCallback uploadMsg, String acceptType) {
+      webViewFactory.mUploadMessage = uploadMsg;
+      Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+      i.addCategory(Intent.CATEGORY_OPENABLE);
+      i.setType("*/*");
+      webViewFactory.getActivity().startActivityForResult(
+              Intent.createChooser(i, "File Browser"),
+              webViewFactory.FILECHOOSER_RESULTCODE);
+    }
+
+
+    @Override
+    @Keep
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)//For Android 4.1
+    public void openFileChooser(ValueCallback<Uri> uploadMsg,
+                                String acceptType, String capture) {
+      webViewFactory.mUploadMessage = uploadMsg;
+      Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+      i.addCategory(Intent.CATEGORY_OPENABLE);
+      i.setType("image/*");
+      webViewFactory.getActivity().startActivityForResult(Intent.createChooser(i, "File Chooser"), webViewFactory.FILECHOOSER_RESULTCODE);
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)//For Android 5.0+
+    public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                     FileChooserParams fileChooserParams) {
+      if (webViewFactory.mUploadMessageArray != null) {
+        webViewFactory.mUploadMessageArray.onReceiveValue(null);
+      }
+      webViewFactory.mUploadMessageArray = filePathCallback;
+
+      Intent contentSelectionIntent = new Intent(Intent.ACTION_GET_CONTENT);
+      contentSelectionIntent.addCategory(Intent.CATEGORY_OPENABLE);
+      contentSelectionIntent.setType("*/*");
+      Intent[] intentArray;
+      intentArray = new Intent[0];
+
+      Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+      chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+      chooserIntent.putExtra(Intent.EXTRA_TITLE, "Image Chooser");
+      chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+      webViewFactory.getActivity().startActivityForResult(chooserIntent, webViewFactory.FILECHOOSER_RESULTCODE);
+      return true;
+    }
   }
 
   @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
@@ -81,15 +148,16 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
       BinaryMessenger messenger,
       int id,
       Map<String, Object> params,
-      View containerView) {
+      View containerView, WebViewFactory webViewFactory) {
 
-//    DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
-//    DisplayManager displayManager =
-//        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-//    displayListenerProxy.onPreWebViewInitialization(displayManager);
+    DisplayListenerProxy displayListenerProxy = new DisplayListenerProxy();
+    DisplayManager displayManager =
+        (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
+    displayListenerProxy.onPreWebViewInitialization(displayManager);
     webView = new InputAwareWebView(context, containerView);
-//    displayListenerProxy.onPostWebViewInitialization(displayManager);
+    displayListenerProxy.onPostWebViewInitialization(displayManager);
 
+    this.webViewFactory = webViewFactory;
     platformThreadHandler = new Handler(context.getMainLooper());
     // Allow local storage.
     webView.getSettings().setDomStorageEnabled(true);
@@ -97,6 +165,12 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
     // Multi windows is set with FlutterWebChromeClient by default to handle internal bug: b/159892679.
     webView.getSettings().setSupportMultipleWindows(true);
+
+    // 允许webview对本机文件的操作
+    webView.getSettings().setAllowFileAccess(true);
+    webView.getSettings().setAllowFileAccessFromFileURLs(false);
+    webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
+
     webView.setWebChromeClient(new FlutterWebChromeClient());
 
     methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
