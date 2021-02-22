@@ -1,3 +1,7 @@
+## 2.0.1-nullsafety.4
+
+* Android support choose file or take photo
+
 ## 2.0.0-nullsafety.4
 
 * Update integration test to workaround an iOS 14 issue with `evaluateJavascript`.
