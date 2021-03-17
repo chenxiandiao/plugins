@@ -1,3 +1,7 @@
+## 2.0.2-nullsafety.4
+
+* Android support initX5() function, update x5 SDK
+
 ## 2.0.1-nullsafety.4
 
 * Android support choose file or take photo
