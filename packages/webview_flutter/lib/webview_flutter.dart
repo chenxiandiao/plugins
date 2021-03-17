@@ -94,8 +94,7 @@ class SurfaceAndroidWebView extends AndroidWebView {
       ) {
         return AndroidViewSurface(
           controller: controller as AndroidViewController,
-          gestureRecognizers: gestureRecognizers ??
-              const <Factory<OneSequenceGestureRecognizer>>{},
+          gestureRecognizers: gestureRecognizers ?? const <Factory<OneSequenceGestureRecognizer>>{},
           hitTestBehavior: PlatformViewHitTestBehavior.opaque,
         );
       },
@@ -220,8 +219,7 @@ class WebView extends StatefulWidget {
     this.debuggingEnabled = false,
     this.gestureNavigationEnabled = false,
     this.userAgent,
-    this.initialMediaPlaybackPolicy =
-        AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
+    this.initialMediaPlaybackPolicy = AutoMediaPlaybackPolicy.require_user_action_for_all_media_types,
     this.allowsInlineMediaPlayback = false,
   })  : assert(javascriptMode != null),
         assert(initialMediaPlaybackPolicy != null),
@@ -441,8 +439,7 @@ class _WebViewState extends State<WebView> {
   }
 
   void _onWebViewPlatformCreated(WebViewPlatformController? webViewPlatform) {
-    final WebViewController controller = WebViewController._(
-        widget, webViewPlatform!, _platformCallbacksHandler);
+    final WebViewController controller = WebViewController._(widget, webViewPlatform!, _platformCallbacksHandler);
     _controller.complete(controller);
     if (widget.onWebViewCreated != null) {
       widget.onWebViewCreated!(controller);
@@ -450,12 +447,10 @@ class _WebViewState extends State<WebView> {
   }
 
   void _assertJavascriptChannelNamesAreUnique() {
-    if (widget.javascriptChannels == null ||
-        widget.javascriptChannels!.isEmpty) {
+    if (widget.javascriptChannels == null || widget.javascriptChannels!.isEmpty) {
       return;
     }
-    assert(_extractChannelNames(widget.javascriptChannels).length ==
-        widget.javascriptChannels!.length);
+    assert(_extractChannelNames(widget.javascriptChannels).length == widget.javascriptChannels!.length);
   }
 }
 
@@ -517,9 +512,7 @@ WebSettings _clearUnchangedWebSettings(WebSettings currentValue, WebSettings new
 }
 
 Set<String> _extractChannelNames(Set<JavascriptChannel>? channels) {
-  final Set<String> channelNames = channels == null
-      ? <String>{}
-      : channels.map((JavascriptChannel channel) => channel.name).toSet();
+  final Set<String> channelNames = channels == null ? <String>{} : channels.map((JavascriptChannel channel) => channel.name).toSet();
   return channelNames;
 }
 
@@ -543,11 +536,8 @@ class _PlatformCallbacksHandler implements WebViewPlatformCallbacksHandler {
     required String url,
     required bool isForMainFrame,
   }) async {
-    final NavigationRequest request =
-        NavigationRequest._(url: url, isForMainFrame: isForMainFrame);
-    final bool allowNavigation = _widget.navigationDelegate == null ||
-        await _widget.navigationDelegate!(request) ==
-            NavigationDecision.navigate;
+    final NavigationRequest request = NavigationRequest._(url: url, isForMainFrame: isForMainFrame);
+    final bool allowNavigation = _widget.navigationDelegate == null || await _widget.navigationDelegate!(request) == NavigationDecision.navigate;
     return allowNavigation;
   }
 
@@ -694,10 +684,8 @@ class WebViewController {
     return _webViewPlatformController.updateSettings(update);
   }
 
-  Future<void> _updateJavascriptChannels(
-      Set<JavascriptChannel>? newChannels) async {
-    final Set<String> currentChannels =
-        _platformCallbacksHandler._javascriptChannels.keys.toSet();
+  Future<void> _updateJavascriptChannels(Set<JavascriptChannel>? newChannels) async {
+    final Set<String> currentChannels = _platformCallbacksHandler._javascriptChannels.keys.toSet();
     final Set<String> newChannelNames = _extractChannelNames(newChannels);
     final Set<String> channelsToAdd = newChannelNames.difference(currentChannels);
     final Set<String> channelsToRemove = currentChannels.difference(newChannelNames);
@@ -803,5 +791,15 @@ void _validateUrlString(String url) {
     }
   } on FormatException catch (e) {
     throw ArgumentError(e);
+  }
+}
+
+class WebviewFlutterX5 {
+  static const MethodChannel _channel = const MethodChannel('webview_flutter_x5');
+
+  static Future<void> initX5() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('initX5', {});
+    }
   }
 }

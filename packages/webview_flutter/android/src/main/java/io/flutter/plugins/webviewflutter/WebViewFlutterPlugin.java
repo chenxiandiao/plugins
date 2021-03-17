@@ -19,6 +19,9 @@ import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.MethodCall;
+import io.flutter.plugin.common.MethodChannel;
 
 /**
  * Java platform implementation of the webview_flutter plugin.
@@ -28,9 +31,12 @@ import io.flutter.plugin.common.BinaryMessenger;
  * <p>Call {@link #registerWith(Registrar)} to use the stable {@code io.flutter.plugin.common}
  * package instead.
  */
-public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
+public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
+        MethodChannel.MethodCallHandler {
+    private static final String CHANNEL_NAME = "webview_flutter_x5";
     private static Activity mActivity;
     private static WebViewFactory webViewFactory;
+    private MethodChannel channel;
 
     private FlutterCookieManager flutterCookieManager;
 
@@ -68,12 +74,14 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
                         "plugins.flutter.io/webview",
                         webViewFactory);
         new FlutterCookieManager(registrar.messenger());
+        final WebViewFlutterPlugin plugin = new WebViewFlutterPlugin();
+        plugin.setupChannel(registrar.messenger(), registrar.context().getApplicationContext());
     }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         mActivity = binding.getActivity();
-        if(webViewFactory!=null) {
+        if (webViewFactory != null) {
             webViewFactory.setActivity(mActivity);
         }
         binding.addActivityResultListener(webViewFactory);
@@ -87,7 +95,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
     @Override
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
         mActivity = binding.getActivity();
-        if(webViewFactory!=null) {
+        if (webViewFactory != null) {
             webViewFactory.setActivity(mActivity);
         }
     }
@@ -98,6 +106,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
     }
 
     void initX5(Context context) {
+        Log.i("X5_webView", "准备初始化");
 //        TBS内核首次使用和加载时，ART虚拟机会将Dex文件转为Oat，该过程由系统底层触发且耗时较长，很容易引起anr问题，解决方法是使用TBS的 ”dex2oat优化方案“。
 // 在调用TBS初始化、创建WebView之前进行如下配置
         HashMap map = new HashMap();
@@ -109,12 +118,12 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
             @Override
             public void onViewInitFinished(boolean arg0) {
                 //x5內核初始化完成的回调，为true表示x5内核加载成功，否则表示x5内核加载失败，会自动切换到系统内核。
-                Log.i("X5 webView", "onViewInitFinished:" + arg0);
+                Log.i("X5_webView", "onViewInitFinished:" + arg0);
             }
 
             @Override
             public void onCoreInitFinished() {
-                Log.i("X5 webView", "onCoreInitFinished");
+                Log.i("X5_webView", "onCoreInitFinished");
             }
         };
         //x5内核初始化接口
@@ -131,11 +140,14 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
                 .registerViewFactory(
                         "plugins.flutter.io/webview", webViewFactory);
         flutterCookieManager = new FlutterCookieManager(messenger);
-        initX5(binding.getApplicationContext());
+        setupChannel(binding.getBinaryMessenger(),
+                binding.getApplicationContext());
     }
 
     @Override
     public void onDetachedFromEngine(FlutterPluginBinding binding) {
+        channel.setMethodCallHandler(null);
+        channel = null;
         mActivity = null;
         if (flutterCookieManager == null) {
             return;
@@ -143,5 +155,23 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware {
 
         flutterCookieManager.dispose();
         flutterCookieManager = null;
+    }
+
+    private void setupChannel(BinaryMessenger messenger, Context context) {
+        channel = new MethodChannel(messenger, CHANNEL_NAME);
+        channel.setMethodCallHandler(this);
+    }
+
+    @Override
+    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+        switch (call.method) {
+            case "initX5":
+                initX5(mActivity.getApplicationContext());
+                result.success("");
+                break;
+            default:
+                result.notImplemented();
+                break;
+        }
     }
 }

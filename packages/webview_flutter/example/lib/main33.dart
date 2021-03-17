@@ -63,6 +63,23 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
+                WebviewFlutterX5.initX5();
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  'X5初始化',
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 40.0,
+            ),
+            GestureDetector(
+              onTap: () {
                 Navigator.push(context, new MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
@@ -119,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     appBar: AppBar(
                       title: Text('测试'),
                     ),
-                    body: SafeArea(child: WebviewPage('')),
+                    body: SafeArea(child: WebviewPage('https://www.baidu.com/')),
                   );
                 }));
               },
