@@ -825,4 +825,10 @@ class WebviewFlutterX5 {
       await _channel.invokeMethod('initX5', {});
     }
   }
+
+  static Future<void> useSysWebview() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('useSysWebview', {});
+    }
+  }
 }

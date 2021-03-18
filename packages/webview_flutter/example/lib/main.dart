@@ -63,6 +63,23 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
+                WebviewFlutterX5.useSysWebview();
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '使用系统webview',
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 40.0,
+            ),
+            GestureDetector(
+              onTap: () {
                 WebviewFlutterX5.initX5();
               },
               child: Container(
