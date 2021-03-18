@@ -1,4 +1,12 @@
-## 2.0.2
+## 2.0.2-nullsafety.4
+
+* Android support initX5() function, update x5 SDK
+
+## 2.0.1-nullsafety.4
+
+* Android support choose file or take photo
+
+## 2.0.0-nullsafety.4
 
 * Fixes bug where text fields are hidden behind the keyboard
 when hybrid composition is used [flutter/issues/75667](https://github.com/flutter/flutter/issues/75667).
