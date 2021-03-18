@@ -1,3 +1,7 @@
+## 2.0.2+2
+
+* add disableSensitiveApi method
+
 ## 2.0.2+1
 
 * add useSysWebview method

@@ -107,7 +107,6 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
 
     void initX5(Context context) {
         Log.i("X5_webView", "准备初始化");
-        QbSdk.unForceSysWebView();
 //        TBS内核首次使用和加载时，ART虚拟机会将Dex文件转为Oat，该过程由系统底层触发且耗时较长，很容易引起anr问题，解决方法是使用TBS的 ”dex2oat优化方案“。
 // 在调用TBS初始化、创建WebView之前进行如下配置
         HashMap map = new HashMap();
@@ -170,8 +169,8 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
                 initX5(mActivity.getApplicationContext());
                 result.success("");
                 break;
-            case "useSysWebview":// 使用安卓系统默认的webview
-                QbSdk.forceSysWebView();
+            case "disableSensitiveApi":// 禁用隐私API的获取
+                QbSdk.disableSensitiveApi();
                 result.success("");
                 break;
             default:

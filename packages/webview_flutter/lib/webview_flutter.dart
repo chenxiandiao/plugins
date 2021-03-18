@@ -826,9 +826,10 @@ class WebviewFlutterX5 {
     }
   }
 
-  static Future<void> useSysWebview() async {
+  static Future<void> disableSensitiveApi() async {
+    // 禁用安卓隐私API的获取（国际设备识别码（IMEI）、国际移动用户识别码（IMSI）、网卡地址（MAC Address）、用户机型、屏幕尺寸、操作系统版本号、目标API（targetAPI）、网络类型(ApnType)、网络变化监听广播以及 Wifi的mac地址）
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await _channel.invokeMethod('useSysWebview', {});
+      await _channel.invokeMethod('disableSensitiveApi', {});
     }
   }
 }
