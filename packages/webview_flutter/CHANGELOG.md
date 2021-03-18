@@ -1,3 +1,7 @@
+## 2.0.2
+
+* support nullsafety
+
 ## 2.0.2-nullsafety.4
 
 * Android support initX5() function, update x5 SDK

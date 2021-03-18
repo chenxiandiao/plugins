@@ -1,9 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter_x5/webview_flutter.dart';
-
-import 'base/input_textfield_box.dart';
 
 void main() {
   runApp(MyApp());
@@ -24,7 +23,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({this.title = ''});
 
   final String title;
 
@@ -34,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
-  FocusNode _focusNode;
+  late FocusNode _focusNode;
 
   @override
   void initState() {
@@ -50,6 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    // return Container();
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -58,6 +58,23 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            SizedBox(
+              height: 40.0,
+            ),
+            GestureDetector(
+              onTap: () {
+                WebviewFlutterX5.initX5();
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  'X5初始化',
+                ),
+              ),
+            ),
             SizedBox(
               height: 40.0,
             ),
@@ -111,7 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () async {
-                if(_focusNode.hasFocus){
+                if (_focusNode.hasFocus) {
                   _focusNode.unfocus();
                 }
                 Navigator.push(context, new MaterialPageRoute(builder: (_) {
@@ -133,9 +150,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            TEInputTextFieldBox(
-              horizonMargin: 0.0,
-              placeHolderString: '请输入兑换码',
+            TextField(
+              // horizonMargin: 0.0,
+              // placeHolderString: '请输入兑换码',
               focusNode: _focusNode,
               // onChanged: _inputChange,
               // controller: _controller,
@@ -159,6 +176,13 @@ class WebviewPage extends StatefulWidget {
 class _WebviewPageState extends State<WebviewPage> {
   final Completer<WebViewController> _completer = Completer<WebViewController>();
   bool loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Enable hybrid composition.
+    if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+  }
 
   @override
   Widget build(BuildContext context) {
