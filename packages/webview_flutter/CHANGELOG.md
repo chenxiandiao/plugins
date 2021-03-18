@@ -1,3 +1,7 @@
+## 2.0.2+1
+
+* add useSysWebview method
+
 ## 2.0.2
 
 * support nullsafety
