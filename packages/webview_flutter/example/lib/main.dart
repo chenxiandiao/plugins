@@ -63,23 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
-                WebviewFlutterX5.useSysWebview();
-              },
-              child: Container(
-                width: 100.0,
-                height: 45.0,
-                color: Colors.blue[200],
-                alignment: Alignment.center,
-                child: Text(
-                  '使用系统webview',
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 40.0,
-            ),
-            GestureDetector(
-              onTap: () {
                 WebviewFlutterX5.initX5();
               },
               child: Container(
@@ -148,12 +131,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 if (_focusNode.hasFocus) {
                   _focusNode.unfocus();
                 }
+                String url2 = 'https://www.baidu.com/';
                 Navigator.push(context, new MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
                       title: Text('测试'),
                     ),
-                    body: SafeArea(child: WebviewPage('https://www.baidu.com/')),
+                    body: SafeArea(child: WebviewPage(url2)),
                   );
                 }));
               },
@@ -163,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.blue[200],
                 alignment: Alignment.center,
                 child: Text(
-                  '我的学习卡',
+                  '测试',
                 ),
               ),
             ),

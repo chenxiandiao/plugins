@@ -1,3 +1,7 @@
+## 2.0.2+3
+
+* fix https domain load http image
+
 ## 2.0.2+2
 
 * add disableSensitiveApi method
