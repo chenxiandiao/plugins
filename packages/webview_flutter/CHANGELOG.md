@@ -1,3 +1,7 @@
+## 2.0.8+1
+
+* remove READ_PHONE_STATE permission
+
 ## 2.0.8
 
 * Migrate maven repository from jcenter to mavenCentral.
