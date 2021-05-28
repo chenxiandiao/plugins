@@ -1,3 +1,7 @@
+## 2.0.8+2
+
+* remove GET_TASKS permission
+
 ## 2.0.8+1
 
 * remove READ_PHONE_STATE permission
