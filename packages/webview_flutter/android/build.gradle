@@ -36,7 +36,7 @@ android {
     dependencies {
         implementation 'androidx.annotation:annotation:1.0.0'
         implementation 'androidx.webkit:webkit:1.0.0'
-        api files('libs/tbs_sdk_thirdapp_v4.3.0.93_43993_sharewithdownloadwithfile_withoutGame_obfs_20210220_114728.jar')
+        api files('libs/tbs_sdk_thirdapp_v4.3.0.155_44055_sharewithdownloadwithfile_withoutGame_obfs_20210615_153451.jar')
 //        api 'com.tencent.tbs.tbssdk:sdk:43939'
     }
 }

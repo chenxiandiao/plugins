@@ -167,11 +167,34 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
         switch (call.method) {
             case "initX5":
                 initX5(mActivity.getApplicationContext());
-                result.success("");
+                result.success(null);
                 break;
-            case "disableSensitiveApi":// 禁用隐私API的获取
-                QbSdk.disableSensitiveApi();
-                result.success("");
+            case "canGetDeviceId":
+                boolean canGetDeviceId = false;
+                if (call.hasArgument("canGetDeviceId") && call.argument("canGetDeviceId") != null) {
+                    canGetDeviceId = call.argument("canGetDeviceId");
+                }
+                QbSdk.canGetDeviceId(canGetDeviceId);// false: 禁止 IMEI 获取
+                Log.i("X5_webView", "禁止 IMEI 获取 " + canGetDeviceId);
+                result.success(null);
+                break;
+            case "canGetAndroidId":
+                boolean canGetAndroidId = false;
+                if (call.hasArgument("canGetAndroidId") && call.argument("canGetAndroidId") != null) {
+                    canGetAndroidId = call.argument("canGetAndroidId");
+                }
+                QbSdk.canGetAndroidId(canGetAndroidId);
+                Log.i("X5_webView", "禁止 Android ID 获取 " + canGetAndroidId);
+                result.success(null);
+                break;
+            case "canGetSubscriberId":
+                boolean canGetSubscriberId = false;
+                if (call.hasArgument("canGetSubscriberId") && call.argument("canGetSubscriberId") != null) {
+                    canGetSubscriberId = call.argument("canGetSubscriberId");
+                }
+                QbSdk.canGetSubscriberId(canGetSubscriberId);
+                Log.i("X5_webView", "禁止 IMSI 获取 " + canGetSubscriberId);
+                result.success(null);
                 break;
             default:
                 result.notImplemented();

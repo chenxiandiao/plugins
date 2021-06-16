@@ -178,7 +178,7 @@ class JavascriptChannel {
   JavascriptChannel({
     required this.name,
     required this.onMessageReceived,
-  })  : assert(name != null),
+  })   : assert(name != null),
         assert(onMessageReceived != null),
         assert(_validChannelNames.hasMatch(name));
 
@@ -826,10 +826,27 @@ class WebviewFlutterX5 {
     }
   }
 
-  static Future<void> disableSensitiveApi() async {
-    // 禁用安卓隐私API的获取（国际设备识别码（IMEI）、国际移动用户识别码（IMSI）、网卡地址（MAC Address）、用户机型、屏幕尺寸、操作系统版本号、目标API（targetAPI）、网络类型(ApnType)、网络变化监听广播以及 Wifi的mac地址）
+  static Future<void> canGetDeviceId(bool flag) async {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await _channel.invokeMethod('disableSensitiveApi', {});
+      await _channel.invokeMethod('canGetDeviceId', {
+        'canGetDeviceId': flag,
+      });
+    }
+  }
+
+  static Future<void> canGetSubscriberId(bool flag) async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('canGetSubscriberId', {
+        'canGetSubscriberId': flag,
+      });
+    }
+  }
+
+  static Future<void> canGetAndroidId(bool flag) async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('canGetAndroidId', {
+        'canGetAndroidId': flag,
+      });
     }
   }
 }

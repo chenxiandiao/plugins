@@ -1,3 +1,7 @@
+## 2.0.8+3
+
+* add API: canGetDeviceId、canGetSubscriberId、canGetAndroidId
+
 ## 2.0.8+2
 
 * remove GET_TASKS permission

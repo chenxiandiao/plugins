@@ -58,9 +58,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(
-              height: 40.0,
-            ),
             GestureDetector(
               onTap: () {
                 WebviewFlutterX5.initX5();
@@ -74,9 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   'X5初始化',
                 ),
               ),
-            ),
-            SizedBox(
-              height: 40.0,
             ),
             GestureDetector(
               onTap: () {
@@ -92,15 +86,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 width: 100.0,
                 height: 45.0,
+                margin: EdgeInsets.only(top: 20),
                 color: Colors.blue[200],
                 alignment: Alignment.center,
                 child: Text(
                   'X5内核加载状态',
                 ),
               ),
-            ),
-            SizedBox(
-              height: 40.0,
             ),
             GestureDetector(
               onTap: () {
@@ -116,15 +108,13 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 width: 100.0,
                 height: 45.0,
+                margin: EdgeInsets.only(top: 20),
                 color: Colors.blue[200],
                 alignment: Alignment.center,
                 child: Text(
                   'x5内核加载测试',
                 ),
               ),
-            ),
-            SizedBox(
-              height: 40.0,
             ),
             GestureDetector(
               onTap: () async {
@@ -144,6 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Container(
                 width: 100.0,
                 height: 45.0,
+                margin: EdgeInsets.only(top: 20),
                 color: Colors.blue[200],
                 alignment: Alignment.center,
                 child: Text(
@@ -151,12 +142,50 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
-            TextField(
-              // horizonMargin: 0.0,
-              // placeHolderString: '请输入兑换码',
-              focusNode: _focusNode,
-              // onChanged: _inputChange,
-              // controller: _controller,
+            GestureDetector(
+              onTap: () async {
+                await WebviewFlutterX5.canGetDeviceId(false);
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '禁止获取imei',
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                await WebviewFlutterX5.canGetSubscriberId(false);
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '禁止获取IMSI',
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                await WebviewFlutterX5.canGetAndroidId(false);
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '禁止获取AndroidID',
+                ),
+              ),
             ),
           ],
         ),
