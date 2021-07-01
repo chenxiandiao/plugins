@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:webview_flutter_x5/webview_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart' as OriginWebview;
 
 void main() {
   runApp(MyApp());
@@ -122,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   _focusNode.unfocus();
                 }
                 String url2 = 'https://www.baidu.com/';
-                Navigator.push(context, new MaterialPageRoute(builder: (_) {
+                await Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
                       title: Text('测试'),
@@ -139,6 +140,34 @@ class _MyHomePageState extends State<MyHomePage> {
                 alignment: Alignment.center,
                 child: Text(
                   '测试',
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                if (_focusNode.hasFocus) {
+                  _focusNode.unfocus();
+                }
+                String url2 = 'https://www.baidu.com/';
+                await Navigator.push(context, MaterialPageRoute(builder: (_) {
+                  return Scaffold(
+                    appBar: AppBar(
+                      title: Text('官方webview插件'),
+                    ),
+                    body: SafeArea(child: OriginWebview.WebView(
+                      initialUrl: url2,
+                    )),
+                  );
+                }));
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '官方webview插件',
                 ),
               ),
             ),

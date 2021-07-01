@@ -8,6 +8,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  webview_flutter: ^2.0.9
   webview_flutter_x5:
     path: ../
 
