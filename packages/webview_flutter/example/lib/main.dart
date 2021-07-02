@@ -102,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     appBar: AppBar(
                       title: Text('x5内核加载测试'),
                     ),
-                    body: SafeArea(child: WebviewPage('http://debugtbs.qq.com/')),
+                    body: SafeArea(child: WebviewPage('https://debugtbs.qq.com/')),
                   );
                 }));
               },

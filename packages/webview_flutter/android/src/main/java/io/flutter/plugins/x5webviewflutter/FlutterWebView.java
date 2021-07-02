@@ -291,7 +291,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
 
         webView.setWebChromeClient(new FlutterWebChromeClient());
 
-        methodChannel = new MethodChannel(messenger, "plugins.flutter.io/webview_" + id);
+        methodChannel = new MethodChannel(messenger, "plugins.flutter.io.x/webview_" + id);
         methodChannel.setMethodCallHandler(this);
 
         flutterWebViewClient = new FlutterWebViewClient(methodChannel);
