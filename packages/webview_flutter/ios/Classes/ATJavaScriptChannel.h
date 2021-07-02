@@ -7,7 +7,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FLTCookieManager : NSObject <FlutterPlugin>
+@interface ATJavaScriptChannel : NSObject <WKScriptMessageHandler>
+
+- (instancetype)initWithMethodChannel:(FlutterMethodChannel*)methodChannel
+                javaScriptChannelName:(NSString*)javaScriptChannelName;
 
 @end
 

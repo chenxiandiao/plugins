@@ -14,7 +14,7 @@ flutter:
         package: io.flutter.plugins.x5webviewflutter
         pluginClass: WebViewFlutterPlugin
       ios:
-        pluginClass: FLTWebViewFlutterPlugin
+        pluginClass: ATWebViewFlutterPlugin
 
 dependencies:
   flutter:

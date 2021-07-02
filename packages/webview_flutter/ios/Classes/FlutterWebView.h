@@ -7,7 +7,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FLTWebViewController : NSObject <FlutterPlatformView, WKUIDelegate>
+@interface ATWebViewController : NSObject <FlutterPlatformView, WKUIDelegate>
 
 - (instancetype)initWithFrame:(CGRect)frame
                viewIdentifier:(int64_t)viewId
@@ -17,7 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIView*)view;
 @end
 
-@interface FLTWebViewFactory : NSObject <FlutterPlatformViewFactory>
+@interface ATWebViewFactory : NSObject <FlutterPlatformViewFactory>
 - (instancetype)initWithMessenger:(NSObject<FlutterBinaryMessenger>*)messenger;
 @end
 
@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * This class overrides some methods in `WKWebView` to serve the needs for the plugin.
  */
-@interface FLTWKWebView : WKWebView
+@interface ATWKWebView : WKWebView
 @end
 
 NS_ASSUME_NONNULL_END

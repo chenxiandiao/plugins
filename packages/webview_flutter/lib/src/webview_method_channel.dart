@@ -14,7 +14,7 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   /// given [id], using the given [WebViewPlatformCallbacksHandler].
   MethodChannelWebViewPlatform(int id, this._platformCallbacksHandler)
       : assert(_platformCallbacksHandler != null),
-        _channel = MethodChannel('plugins.flutter.io/webview_$id') {
+        _channel = MethodChannel('plugins.flutter.io.x/webview_$id') {
     _channel.setMethodCallHandler(_onMethodCall);
   }
 
@@ -22,8 +22,7 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
 
   final MethodChannel _channel;
 
-  static const MethodChannel _cookieManagerChannel =
-      MethodChannel('plugins.flutter.io/cookie_manager');
+  static const MethodChannel _cookieManagerChannel = MethodChannel('plugins.flutter.io.x/cookie_manager');
 
   Future<bool?> _onMethodCall(MethodCall call) async {
     switch (call.method) {
@@ -58,8 +57,7 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
                 ? null
                 : WebResourceErrorType.values.firstWhere(
                     (WebResourceErrorType type) {
-                      return type.toString() ==
-                          '$WebResourceErrorType.${call.arguments['errorType']}';
+                      return type.toString() == '$WebResourceErrorType.${call.arguments['errorType']}';
                     },
                   ),
           ),
@@ -88,12 +86,10 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   Future<String?> currentUrl() => _channel.invokeMethod<String>('currentUrl');
 
   @override
-  Future<bool> canGoBack() =>
-      _channel.invokeMethod<bool>("canGoBack").then((result) => result!);
+  Future<bool> canGoBack() => _channel.invokeMethod<bool>("canGoBack").then((result) => result!);
 
   @override
-  Future<bool> canGoForward() =>
-      _channel.invokeMethod<bool>("canGoForward").then((result) => result!);
+  Future<bool> canGoForward() => _channel.invokeMethod<bool>("canGoForward").then((result) => result!);
 
   @override
   Future<void> goBack() => _channel.invokeMethod<void>("goBack");
@@ -117,21 +113,17 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
 
   @override
   Future<String> evaluateJavascript(String javascriptString) {
-    return _channel
-        .invokeMethod<String>('evaluateJavascript', javascriptString)
-        .then((result) => result!);
+    return _channel.invokeMethod<String>('evaluateJavascript', javascriptString).then((result) => result!);
   }
 
   @override
   Future<void> addJavascriptChannels(Set<String> javascriptChannelNames) {
-    return _channel.invokeMethod<void>(
-        'addJavascriptChannels', javascriptChannelNames.toList());
+    return _channel.invokeMethod<void>('addJavascriptChannels', javascriptChannelNames.toList());
   }
 
   @override
   Future<void> removeJavascriptChannels(Set<String> javascriptChannelNames) {
-    return _channel.invokeMethod<void>(
-        'removeJavascriptChannels', javascriptChannelNames.toList());
+    return _channel.invokeMethod<void>('removeJavascriptChannels', javascriptChannelNames.toList());
   }
 
   @override
@@ -154,18 +146,14 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
   }
 
   @override
-  Future<int> getScrollX() =>
-      _channel.invokeMethod<int>("getScrollX").then((result) => result!);
+  Future<int> getScrollX() => _channel.invokeMethod<int>("getScrollX").then((result) => result!);
 
   @override
-  Future<int> getScrollY() =>
-      _channel.invokeMethod<int>("getScrollY").then((result) => result!);
+  Future<int> getScrollY() => _channel.invokeMethod<int>("getScrollY").then((result) => result!);
 
   /// Method channel implementation for [WebViewPlatform.clearCookies].
   static Future<bool> clearCookies() {
-    return _cookieManagerChannel
-        .invokeMethod<bool>('clearCookies')
-        .then<bool>((dynamic result) => result!);
+    return _cookieManagerChannel.invokeMethod<bool>('clearCookies').then<bool>((dynamic result) => result!);
   }
 
   static Map<String, dynamic> _webSettingsToMap(WebSettings? settings) {
@@ -188,10 +176,8 @@ class MethodChannelWebViewPlatform implements WebViewPlatformController {
     _addIfNonNull('hasNavigationDelegate', settings.hasNavigationDelegate);
     _addIfNonNull('hasProgressTracking', settings.hasProgressTracking);
     _addIfNonNull('debuggingEnabled', settings.debuggingEnabled);
-    _addIfNonNull(
-        'gestureNavigationEnabled', settings.gestureNavigationEnabled);
-    _addIfNonNull(
-        'allowsInlineMediaPlayback', settings.allowsInlineMediaPlayback);
+    _addIfNonNull('gestureNavigationEnabled', settings.gestureNavigationEnabled);
+    _addIfNonNull('allowsInlineMediaPlayback', settings.allowsInlineMediaPlayback);
     _addSettingIfPresent('userAgent', settings.userAgent);
     return map;
   }

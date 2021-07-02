@@ -2,9 +2,9 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-#import "JavaScriptChannelHandler.h"
+#import "ATJavaScriptChannel.h"
 
-@implementation FLTJavaScriptChannel {
+@implementation ATJavaScriptChannel {
   FlutterMethodChannel* _methodChannel;
   NSString* _javaScriptChannelName;
 }
