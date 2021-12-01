@@ -1,3 +1,7 @@
+## 2.0.8+5
+
+* upgrade x5 SDK
+
 ## 2.0.8+4
 
 * rename package name, Support hybrid use with the official webview_flutter plugin
