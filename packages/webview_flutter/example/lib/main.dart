@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(builder: (_) {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
                       title: Text('X5内核加载状态'),
@@ -97,12 +97,12 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             GestureDetector(
               onTap: () {
-                Navigator.push(context, new MaterialPageRoute(builder: (_) {
+                Navigator.push(context, MaterialPageRoute(builder: (_) {
                   return Scaffold(
                     appBar: AppBar(
                       title: Text('x5内核加载测试'),
                     ),
-                    body: SafeArea(child: WebviewPage('https://debugtbs.qq.com/')),
+                    body: SafeArea(child: WebviewPage('http://debugtbs.qq.com/')),
                   );
                 }));
               },
@@ -262,9 +262,9 @@ class _WebviewPageState extends State<WebviewPage> {
           },
           navigationDelegate: (request) {
             print('web view page test: url:${widget.url}');
-            if (request.url.startsWith('http://')) {
-              request.url.replaceFirst('http://', 'https://');
-            }
+            // if (request.url.startsWith('http://')) {
+            //   request.url.replaceFirst('http://', 'https://');
+            // }
             print('web view page test: url:${widget.url}');
             return NavigationDecision.navigate;
           },
