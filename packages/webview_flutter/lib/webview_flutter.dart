@@ -20,6 +20,9 @@ import 'src/webview_method_channel.dart';
 /// the [WebViewController] for the created web view.
 typedef void WebViewCreatedCallback(WebViewController controller);
 
+/// 需要的权限
+typedef void OnNeedPermissionCallback(List<String> permissions);
+
 /// Describes the state of JavaScript support in a given web view.
 enum JavascriptMode {
   /// JavaScript execution is disabled.
@@ -178,7 +181,7 @@ class JavascriptChannel {
   JavascriptChannel({
     required this.name,
     required this.onMessageReceived,
-  })   : assert(name != null),
+  })  : assert(name != null),
         assert(onMessageReceived != null),
         assert(_validChannelNames.hasMatch(name));
 
@@ -818,10 +821,27 @@ void _validateUrlString(String url) {
 }
 
 class WebviewFlutterX5 {
-  static const MethodChannel _channel = const MethodChannel('webview_flutter_x5');
+  static const MethodChannel _channel = MethodChannel('webview_flutter_x5');
 
-  static Future<void> initX5() async {
+  static Future<void> initX5({OnNeedPermissionCallback? needPermissionCallback}) async {
     if (defaultTargetPlatform == TargetPlatform.android) {
+      _channel.setMethodCallHandler((MethodCall call) {
+        if (call.method == 'needPermission') {
+          try {
+            List<dynamic> args = call.arguments["permissions"];
+            List<String> permissions = [];
+            for (final dynamic item in args) {
+              permissions.add(item.toString());
+            }
+            // print('22222 $permissions $needPermissionCallback');
+            needPermissionCallback?.call(permissions);
+          } catch (e) {
+            print('error $e');
+          }
+        }
+        return Future.value(true);
+      });
+
       await _channel.invokeMethod('initX5', {});
     }
   }

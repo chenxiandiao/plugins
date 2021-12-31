@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.OpenableColumns;
+import android.util.Log;
 import android.view.View;
 
 import com.tencent.smtt.sdk.ValueCallback;
@@ -34,12 +35,21 @@ public final class WebViewFactory extends PlatformViewFactory implements PluginR
     public final int FILECHOOSER_RESULTCODE = 1;
     public Uri fileUri;
     public Uri videoUri;
+    public IPermissionCallback callback;
 
     WebViewFactory(BinaryMessenger messenger, View containerView, Activity mActivity) {
         super(StandardMessageCodec.INSTANCE);
         this.messenger = messenger;
         this.containerView = containerView;
         this.mActivity = mActivity;
+    }
+
+    public void setPermissionCallback(IPermissionCallback callback) {
+        this.callback = callback;
+    }
+
+    public IPermissionCallback getPermissionCallback() {
+        return callback;
     }
 
     @SuppressWarnings("unchecked")

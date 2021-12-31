@@ -21,6 +21,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugins.x5webviewflutter.model.PermissionDataInfo;
 
 /**
  * Java platform implementation of the webview_flutter plugin.
@@ -38,6 +39,20 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
     private MethodChannel channel;
 
     private FlutterCookieManager flutterCookieManager;
+
+    private IPermissionCallback permissionCallback = new IPermissionCallback() {
+
+        @Override
+        public void onNeedPermission(final PermissionDataInfo data) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i("X5_webView", "调用dart函数：needPermission, " + data.toMap());
+                    channel.invokeMethod("needPermission", data.toMap());
+                }
+            });
+        }
+    };
 
     /**
      * Add an instance of this to {@link io.flutter.embedding.engine.plugins.PluginRegistry} to
@@ -77,9 +92,14 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
         plugin.setupChannel(registrar.messenger(), registrar.context().getApplicationContext());
     }
 
+    void registerCallback() {
+        webViewFactory.setPermissionCallback(permissionCallback);
+    }
+
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
         mActivity = binding.getActivity();
+        registerCallback();
         if (webViewFactory != null) {
             webViewFactory.setActivity(mActivity);
         }
@@ -94,6 +114,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
     @Override
     public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
         mActivity = binding.getActivity();
+        registerCallback();
         if (webViewFactory != null) {
             webViewFactory.setActivity(mActivity);
         }

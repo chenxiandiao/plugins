@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:webview_flutter_x5/webview_flutter.dart';
 import 'package:webview_flutter/webview_flutter.dart' as OriginWebview;
 
@@ -61,7 +62,20 @@ class _MyHomePageState extends State<MyHomePage> {
           children: <Widget>[
             GestureDetector(
               onTap: () {
-                WebviewFlutterX5.initX5();
+                WebviewFlutterX5.initX5(needPermissionCallback: (List<String> permissions) async {
+                  List<Permission> permissionList = [];
+                  for (final item in permissions) {
+                    if (item == 'camera') {
+                      permissionList.add(Permission.camera);
+                    } else if (item == 'storage') {
+                      permissionList.add(Permission.storage);
+                    }
+                  }
+                  if (permissionList.isNotEmpty) {
+                    Map<Permission, PermissionStatus> statuses = await permissionList.request();
+                    print('dart层权限: $permissions $statuses');
+                  }
+                });
               },
               child: Container(
                 width: 100.0,

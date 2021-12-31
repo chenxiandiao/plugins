@@ -7,12 +7,15 @@ package io.flutter.plugins.x5webviewflutter;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 
 import com.tencent.smtt.sdk.ValueCallback;
@@ -24,6 +27,7 @@ import com.tencent.smtt.sdk.WebViewClient;
 
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import io.flutter.plugin.common.BinaryMessenger;
@@ -32,11 +36,13 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.platform.PlatformView;
+import io.flutter.plugins.x5webviewflutter.model.PermissionDataInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +56,74 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
     private final MethodChannel methodChannel;
     private final FlutterWebViewClient flutterWebViewClient;
     private final Handler platformThreadHandler;
+    private ArrayList<String> mRequestedPermissions;
+    private final String TAG = "X5_webView";
+
+    /**
+     * 判断Manifest文件中是否声明了对应权限
+     *
+     * @param permission 权限类型
+     * @retrun boolean
+     */
+    private boolean hasPermissionInManifest(String permission) {
+        try {
+            if (mRequestedPermissions != null) {
+                for (String r : mRequestedPermissions) {
+                    if (r.equals(permission)) {
+                        return true;
+                    }
+                }
+            }
+            if (webViewFactory.getActivity() == null) {
+                Log.w(TAG, "Unable to detect current Activity or App Context.");
+                return false;
+            }
+            PackageInfo info =
+                    webViewFactory.getActivity().getPackageManager().getPackageInfo(webViewFactory.getActivity().getPackageName(),
+                            PackageManager.GET_PERMISSIONS);
+            if (info == null) {
+                Log.w(TAG, "Unable to get Package info,will not be able to determine permissions"
+                        + "to request.");
+
+                return false;
+            }
+            mRequestedPermissions = new ArrayList<>(Arrays.asList(info.requestedPermissions));
+            for (String r : mRequestedPermissions) {
+                if (r.equals(permission)) {
+                    return true;
+                }
+            }
+        } catch (Exception ex) {
+            Log.w(TAG, "Unable to check manifest for permission: " + ex.getMessage());
+        }
+        return false;
+    }
+
+    private boolean needPermission() {
+        boolean needPermission = false;
+        final boolean targetsMOrHigher =
+                webViewFactory.getActivity().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M;
+        if (targetsMOrHigher) {
+            final List<String> names = new ArrayList<>();
+            if (hasPermissionInManifest(android.Manifest.permission.CAMERA)) {
+                names.add(android.Manifest.permission.CAMERA);
+            }
+            if (hasPermissionInManifest(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                names.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+            if (hasPermissionInManifest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                names.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            for (String name : names) {
+                final int permissionStatus =
+                        ContextCompat.checkSelfPermission(webViewFactory.getActivity(), name);
+                if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                    needPermission = true;
+                }
+            }
+        }
+        return needPermission;
+    }
 
     // Verifies that a url opened by `Window.open` has a secure url.
     private class FlutterWebChromeClient extends WebChromeClient {
@@ -125,6 +199,21 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)//For Android 4.1
         public void openFileChooser(ValueCallback<Uri> uploadMsg,
                                     String acceptType, String capture) {
+            boolean needPermission = needPermission();
+            if (needPermission) {
+                Log.w(TAG, "'need camera and storage permission'");
+                IPermissionCallback callback = webViewFactory.getPermissionCallback();
+                if (callback != null) {
+                    PermissionDataInfo data = new PermissionDataInfo();
+                    List<String> permissions = new ArrayList<>();
+                    permissions.add("camera");
+                    permissions.add("storage");
+                    data.setPermissions(permissions);
+                    callback.onNeedPermission(data);
+                }
+                uploadMsg.onReceiveValue(null);
+                return;
+            }
             webViewFactory.mUploadMessage = uploadMsg;
             Intent i = new Intent(Intent.ACTION_GET_CONTENT);
             i.addCategory(Intent.CATEGORY_OPENABLE);
@@ -137,6 +226,22 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)//For Android 5.0+
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
+            boolean needPermission = needPermission();
+            if (needPermission) {
+                Log.w(TAG, "'need camera and storage permission'");
+                IPermissionCallback callback = webViewFactory.getPermissionCallback();
+                if (callback != null) {
+                    PermissionDataInfo data = new PermissionDataInfo();
+                    List<String> permissions = new ArrayList<>();
+                    permissions.add("camera");
+                    permissions.add("storage");
+                    data.setPermissions(permissions);
+                    callback.onNeedPermission(data);
+                }
+                filePathCallback.onReceiveValue(null);
+                return true;
+            }
+
             if (webViewFactory.mUploadMessageArray != null) {
                 webViewFactory.mUploadMessageArray.onReceiveValue(null);
             }
