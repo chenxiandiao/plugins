@@ -1,3 +1,7 @@
+## 2.0.8+6
+
+* add permission callback
+
 ## 2.0.8+5
 
 * upgrade x5 SDK
