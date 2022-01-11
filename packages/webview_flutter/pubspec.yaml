@@ -1,6 +1,6 @@
 name: webview_flutter_x5
 description: A Flutter plugin that provides a WebView widget on Android and iOS which Android's core is tencent x5.
-version: 2.0.8+6
+version: 2.0.8+7
 homepage: https://github.com/buaashuai/plugins/tree/master/packages/webview_flutter
 
 environment:
