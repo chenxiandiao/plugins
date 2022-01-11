@@ -869,4 +869,10 @@ class WebviewFlutterX5 {
       });
     }
   }
+
+  static Future<void> forbidPhoneAndSn() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('forbidPhoneAndSn', {});
+    }
+  }
 }

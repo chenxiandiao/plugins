@@ -6,6 +6,8 @@ package io.flutter.plugins.x5webviewflutter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -214,6 +216,13 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
                 }
                 QbSdk.canGetSubscriberId(canGetSubscriberId);
                 Log.i("X5_webView", "禁止 IMSI 获取 " + canGetSubscriberId);
+                result.success(null);
+                break;
+            case "forbidPhoneAndSn":
+                Bundle bundle = new Bundle();
+                bundle.putString("model", Build.MODEL);
+                bundle.putString("serial", Build.SERIAL);
+                Log.i("X5_webView", "禁止SN和手机型号获取 ");
                 result.success(null);
                 break;
             default:
