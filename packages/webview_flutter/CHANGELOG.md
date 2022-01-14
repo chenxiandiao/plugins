@@ -1,3 +1,7 @@
+## 2.0.8+8
+
+* support ChooseFileMode, allow user to decide how to deal permission or select file
+
 ## 2.0.8+7
 
 * upgrade x5 SDK
