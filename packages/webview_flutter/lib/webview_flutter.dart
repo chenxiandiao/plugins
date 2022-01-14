@@ -820,6 +820,12 @@ void _validateUrlString(String url) {
   }
 }
 
+enum ChooseFileMode {
+  auto,
+  camera,
+  album,
+}
+
 class WebviewFlutterX5 {
   static const MethodChannel _channel = MethodChannel('webview_flutter_x5');
 
@@ -870,9 +876,23 @@ class WebviewFlutterX5 {
     }
   }
 
-  static Future<void> forbidPhoneAndSn() async {
+  static Future<void> manualPhoneModel() async {
     if (defaultTargetPlatform == TargetPlatform.android) {
-      await _channel.invokeMethod('forbidPhoneAndSn', {});
+      await _channel.invokeMethod('manualPhoneModel', {});
+    }
+  }
+
+  static Future<void> manualPhoneSerial() async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('manualPhoneSerial', {});
+    }
+  }
+
+  static Future<void> setChooseFileMode(ChooseFileMode mode) async {
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      await _channel.invokeMethod('setChooseFileMode', {
+        'mode': mode.index,
+      });
     }
   }
 }

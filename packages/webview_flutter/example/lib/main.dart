@@ -36,6 +36,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   late FocusNode _focusNode;
+  ChooseFileMode chooseFileMode = ChooseFileMode.auto;
 
   @override
   void initState() {
@@ -57,8 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
           children: <Widget>[
             GestureDetector(
               onTap: () {
@@ -168,7 +168,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     appBar: AppBar(
                       title: Text('官方webview插件'),
                     ),
-                    body: SafeArea(child: OriginWebview.WebView(
+                    body: SafeArea(
+                        child: OriginWebview.WebView(
                       initialUrl: url2,
                     )),
                   );
@@ -230,10 +231,102 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
             ),
+            GestureDetector(
+              onTap: () async {
+                await WebviewFlutterX5.manualPhoneModel();
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '设置手机型号',
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () async {
+                await WebviewFlutterX5.manualPhoneSerial();
+              },
+              child: Container(
+                width: 100.0,
+                height: 45.0,
+                margin: EdgeInsets.only(top: 20),
+                color: Colors.blue[200],
+                alignment: Alignment.center,
+                child: Text(
+                  '设置SN',
+                ),
+              ),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 200.0,
+                  height: 45.0,
+                  margin: EdgeInsets.only(top: 20),
+                  color: Colors.blue[200],
+                  alignment: Alignment.center,
+                  child: Text(
+                    '选择文件模式 $chooseFileMode',
+                  ),
+                ),
+                PopupMenuButton<ChooseFileMode>(
+                    icon: Icon(
+                      Icons.add,
+                      size: 24,
+                      color: Colors.grey,
+                    ),
+                    padding: EdgeInsets.zero,
+                    onSelected: (value) async{
+                      setState(() {
+                        chooseFileMode = value;
+                      });
+                      await WebviewFlutterX5.setChooseFileMode(value);
+                    },
+                    itemBuilder: (BuildContext context) => getWidgets()),
+              ],
+            ),
           ],
         ),
       ),
     );
+  }
+
+  List<PopupMenuEntry<ChooseFileMode>> getWidgets() {
+    List<ChooseFileMode> strategyList = ChooseFileMode.values;
+    List<PopupMenuEntry<ChooseFileMode>> widgets = [];
+    for (int i = 0; i < strategyList.length; i++) {
+      var ele = strategyList[i];
+      widgets.add(PopupMenuItem<ChooseFileMode>(
+          value: ele,
+          child: Container(
+            // color: Colors.green,
+            width: 180,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  '$ele',
+                  style: TextStyle(fontSize: 14.0),
+                ),
+                if (ele == chooseFileMode)
+                  Icon(
+                    Icons.favorite,
+                    size: 16.0,
+                    color: Colors.blue,
+                  )
+                else
+                  Container(),
+              ],
+            ),
+          )));
+      widgets.add(const PopupMenuDivider());
+    }
+    return widgets;
   }
 }
 

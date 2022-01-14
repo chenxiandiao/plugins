@@ -21,6 +21,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.StandardMessageCodec;
 import io.flutter.plugin.platform.PlatformView;
 import io.flutter.plugin.platform.PlatformViewFactory;
+import io.flutter.plugins.x5webviewflutter.model.ChooseFileMode;
 
 import java.util.Map;
 
@@ -36,6 +37,7 @@ public final class WebViewFactory extends PlatformViewFactory implements PluginR
     public Uri fileUri;
     public Uri videoUri;
     public IPermissionCallback callback;
+    private ChooseFileMode chooseFileMode = ChooseFileMode.auto;
 
     WebViewFactory(BinaryMessenger messenger, View containerView, Activity mActivity) {
         super(StandardMessageCodec.INSTANCE);
@@ -51,6 +53,15 @@ public final class WebViewFactory extends PlatformViewFactory implements PluginR
     public IPermissionCallback getPermissionCallback() {
         return callback;
     }
+
+    public void setChooseFileMode(ChooseFileMode mode) {
+        this.chooseFileMode = mode;
+    }
+
+    public ChooseFileMode getChooseFileMode() {
+        return chooseFileMode;
+    }
+
 
     @SuppressWarnings("unchecked")
     @Override

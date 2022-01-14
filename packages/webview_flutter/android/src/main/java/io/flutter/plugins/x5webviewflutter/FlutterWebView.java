@@ -36,6 +36,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.platform.PlatformView;
+import io.flutter.plugins.x5webviewflutter.model.ChooseFileMode;
 import io.flutter.plugins.x5webviewflutter.model.PermissionDataInfo;
 
 import java.io.File;
@@ -125,6 +126,50 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         return needPermission;
     }
 
+    private boolean needStoragePermission() {
+        boolean needPermission = false;
+        final boolean targetsMOrHigher =
+                webViewFactory.getActivity().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M;
+        if (targetsMOrHigher) {
+            final List<String> names = new ArrayList<>();
+            if (hasPermissionInManifest(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                names.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
+            if (hasPermissionInManifest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                names.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
+            for (String name : names) {
+                final int permissionStatus =
+                        ContextCompat.checkSelfPermission(webViewFactory.getActivity(), name);
+                if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                    needPermission = true;
+                }
+            }
+        }
+        return needPermission;
+    }
+
+    private boolean needCameraPermission() {
+        boolean needPermission = false;
+        final boolean targetsMOrHigher =
+                webViewFactory.getActivity().getApplicationInfo().targetSdkVersion >= Build.VERSION_CODES.M;
+        if (targetsMOrHigher) {
+            final List<String> names = new ArrayList<>();
+            if (hasPermissionInManifest(android.Manifest.permission.CAMERA)) {
+                names.add(android.Manifest.permission.CAMERA);
+            }
+
+            for (String name : names) {
+                final int permissionStatus =
+                        ContextCompat.checkSelfPermission(webViewFactory.getActivity(), name);
+                if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+                    needPermission = true;
+                }
+            }
+        }
+        return needPermission;
+    }
+
     // Verifies that a url opened by `Window.open` has a secure url.
     private class FlutterWebChromeClient extends WebChromeClient {
         @Override
@@ -199,15 +244,24 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN)//For Android 4.1
         public void openFileChooser(ValueCallback<Uri> uploadMsg,
                                     String acceptType, String capture) {
-            boolean needPermission = needPermission();
+            boolean needPermission = false;
+            List<String> permissions = new ArrayList<>();
+            if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
+                needPermission = needPermission();
+                permissions.add("camera");
+                permissions.add("storage");
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
+                needPermission = needCameraPermission();
+                permissions.add("camera");
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
+                needPermission = needStoragePermission();
+                permissions.add("storage");
+            }
             if (needPermission) {
-                Log.w(TAG, "'need camera and storage permission'");
+                Log.i(TAG, "'need permission'");
                 IPermissionCallback callback = webViewFactory.getPermissionCallback();
                 if (callback != null) {
                     PermissionDataInfo data = new PermissionDataInfo();
-                    List<String> permissions = new ArrayList<>();
-                    permissions.add("camera");
-                    permissions.add("storage");
                     data.setPermissions(permissions);
                     callback.onNeedPermission(data);
                 }
@@ -226,15 +280,24 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         @TargetApi(Build.VERSION_CODES.LOLLIPOP)//For Android 5.0+
         public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
                                          FileChooserParams fileChooserParams) {
-            boolean needPermission = needPermission();
+            boolean needPermission = false;
+            List<String> permissions = new ArrayList<>();
+            if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
+                needPermission = needPermission();
+                permissions.add("camera");
+                permissions.add("storage");
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
+                needPermission = needCameraPermission();
+                permissions.add("camera");
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
+                needPermission = needStoragePermission();
+                permissions.add("storage");
+            }
             if (needPermission) {
-                Log.w(TAG, "'need camera and storage permission'");
+                Log.i(TAG, "'need permission'");
                 IPermissionCallback callback = webViewFactory.getPermissionCallback();
                 if (callback != null) {
                     PermissionDataInfo data = new PermissionDataInfo();
-                    List<String> permissions = new ArrayList<>();
-                    permissions.add("camera");
-                    permissions.add("storage");
                     data.setPermissions(permissions);
                     callback.onNeedPermission(data);
                 }
@@ -248,17 +311,21 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             webViewFactory.mUploadMessageArray = filePathCallback;
 
             final String[] acceptTypes = getSafeAcceptedTypes(fileChooserParams);
+
+            for (int i = 0; i < acceptTypes.length; i++) {
+                Log.i(TAG, "acceptTypes " + acceptTypes[i]);
+            }
             List<Intent> intentList = new ArrayList<Intent>();
             webViewFactory.fileUri = null;
             webViewFactory.videoUri = null;
+            Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
             if (acceptsImages(acceptTypes)) {
-                Intent takePhotoIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 webViewFactory.fileUri = getOutputFilename(MediaStore.ACTION_IMAGE_CAPTURE);
                 takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, webViewFactory.fileUri);
                 intentList.add(takePhotoIntent);
             }
             if (acceptsVideo(acceptTypes)) {
-                Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                 webViewFactory.videoUri = getOutputFilename(MediaStore.ACTION_VIDEO_CAPTURE);
                 takeVideoIntent.putExtra(MediaStore.EXTRA_OUTPUT, webViewFactory.videoUri);
                 intentList.add(takeVideoIntent);
@@ -276,11 +343,21 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             }
             Intent[] intentArray = intentList.toArray(new Intent[intentList.size()]);
 
-            Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
-            chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
-            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
-            webViewFactory.getActivity().startActivityForResult(chooserIntent,
-                    webViewFactory.FILECHOOSER_RESULTCODE);
+            if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
+                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, intentArray);
+                webViewFactory.getActivity().startActivityForResult(chooserIntent,
+                        webViewFactory.FILECHOOSER_RESULTCODE);
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
+                webViewFactory.getActivity().startActivityForResult(takePhotoIntent,
+                        webViewFactory.FILECHOOSER_RESULTCODE);
+            } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
+                Intent chooserIntent = new Intent(Intent.ACTION_CHOOSER);
+                chooserIntent.putExtra(Intent.EXTRA_INTENT, contentSelectionIntent);
+                webViewFactory.getActivity().startActivityForResult(chooserIntent,
+                        webViewFactory.FILECHOOSER_RESULTCODE);
+            }
 
             return true;
         }

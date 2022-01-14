@@ -23,6 +23,7 @@ import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
+import io.flutter.plugins.x5webviewflutter.model.ChooseFileMode;
 import io.flutter.plugins.x5webviewflutter.model.PermissionDataInfo;
 
 /**
@@ -39,6 +40,8 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
     private static Activity mActivity;
     private static WebViewFactory webViewFactory;
     private MethodChannel channel;
+    private String model = "";//手机型号
+    private String serial = "";//手机序列号
 
     private FlutterCookieManager flutterCookieManager;
 
@@ -218,11 +221,31 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
                 Log.i("X5_webView", "禁止 IMSI 获取 " + canGetSubscriberId);
                 result.success(null);
                 break;
-            case "forbidPhoneAndSn":
+            case "manualPhoneModel":
                 Bundle bundle = new Bundle();
-                bundle.putString("model", Build.MODEL);
-                bundle.putString("serial", Build.SERIAL);
-                Log.i("X5_webView", "禁止SN和手机型号获取 ");
+                if (model.isEmpty()) {
+                    model = Build.MODEL;
+                }
+                bundle.putString("model", model);
+                Log.i("X5_webView", "自动手机型号获取 ");
+                QbSdk.setUserID(mActivity.getApplicationContext(), bundle);
+                result.success(null);
+                break;
+            case "manualPhoneSerial":
+                Bundle bundle2 = new Bundle();
+                if (serial.isEmpty()) {
+                    serial = Build.SERIAL;
+                }
+                bundle2.putString("serial", serial);
+                Log.i("X5_webView", "自动SN获取 ");
+                QbSdk.setUserID(mActivity.getApplicationContext(), bundle2);
+                result.success(null);
+                break;
+            case "setChooseFileMode":
+                int mode = call.argument("mode");
+                ChooseFileMode chooseFileMode = ChooseFileMode.values()[mode];
+                Log.i("X5_webView", "setChooseFileMode = " + chooseFileMode);
+                webViewFactory.setChooseFileMode(chooseFileMode);
                 result.success(null);
                 break;
             default:
