@@ -1,3 +1,7 @@
+## 2.0.8+9
+
+* fix permission bug
+
 ## 2.0.8+8
 
 * support ChooseFileMode, allow user to decide how to deal permission or select file
