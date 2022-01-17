@@ -112,9 +112,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             if (hasPermissionInManifest(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 names.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
             }
-            if (hasPermissionInManifest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                names.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
-            }
             for (String name : names) {
                 final int permissionStatus =
                         ContextCompat.checkSelfPermission(webViewFactory.getActivity(), name);
@@ -134,9 +131,6 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             final List<String> names = new ArrayList<>();
             if (hasPermissionInManifest(android.Manifest.permission.READ_EXTERNAL_STORAGE)) {
                 names.add(android.Manifest.permission.READ_EXTERNAL_STORAGE);
-            }
-            if (hasPermissionInManifest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                names.add(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
             }
             for (String name : names) {
                 final int permissionStatus =
@@ -249,15 +243,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
                 needPermission = needPermission();
                 permissions.add("camera");
-                permissions.add("storage");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
                 needPermission = needCameraPermission();
                 permissions.add("camera");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
                 needPermission = needStoragePermission();
-                permissions.add("storage");
             }
-            if (needPermission) {
+            if (needPermission && !permissions.isEmpty()) {
                 Log.i(TAG, "'need permission'");
                 IPermissionCallback callback = webViewFactory.getPermissionCallback();
                 if (callback != null) {
@@ -285,15 +277,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
                 needPermission = needPermission();
                 permissions.add("camera");
-                permissions.add("storage");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
                 needPermission = needCameraPermission();
                 permissions.add("camera");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
                 needPermission = needStoragePermission();
-                permissions.add("storage");
             }
-            if (needPermission) {
+            if (needPermission && !permissions.isEmpty()) {
                 Log.i(TAG, "'need permission'");
                 IPermissionCallback callback = webViewFactory.getPermissionCallback();
                 if (callback != null) {
