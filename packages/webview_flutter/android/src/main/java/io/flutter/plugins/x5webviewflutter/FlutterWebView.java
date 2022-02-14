@@ -457,6 +457,8 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         webView.getSettings().setAllowFileAccessFromFileURLs(false);
         webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
 
+        webView.setBackgroundColor(0); // 设置背景色
+        webView.getBackground().setAlpha(0);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webView.getSettings().setMixedContentMode(android.webkit.WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);// 设置兼容模式在https下显示http的图片资源
         }
