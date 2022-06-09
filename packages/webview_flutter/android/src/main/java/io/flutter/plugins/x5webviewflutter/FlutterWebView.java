@@ -243,11 +243,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
                 needPermission = needPermission();
                 permissions.add("camera");
+                permissions.add("storage");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
                 needPermission = needCameraPermission();
                 permissions.add("camera");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
                 needPermission = needStoragePermission();
+                permissions.add("storage");
             }
             if (needPermission && !permissions.isEmpty()) {
                 Log.i(TAG, "'need permission'");
@@ -277,11 +279,13 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
             if (webViewFactory.getChooseFileMode() == ChooseFileMode.auto) {
                 needPermission = needPermission();
                 permissions.add("camera");
+                permissions.add("storage");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.camera) {
                 needPermission = needCameraPermission();
                 permissions.add("camera");
             } else if (webViewFactory.getChooseFileMode() == ChooseFileMode.album) {
                 needPermission = needStoragePermission();
+                permissions.add("storage");
             }
             if (needPermission && !permissions.isEmpty()) {
                 Log.i(TAG, "'need permission'");
