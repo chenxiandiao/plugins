@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 
 import com.tencent.smtt.export.external.TbsCoreSettings;
 import com.tencent.smtt.sdk.QbSdk;
+import com.tencent.smtt.sdk.TbsListener;
 
 import java.util.HashMap;
 
@@ -132,6 +133,33 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
 
     void initX5(Context context) {
         Log.i("X5_webView", "准备初始化");
+        QbSdk.setTbsListener(new TbsListener() {
+
+            /**
+             * @param stateCode 110: 表示当前服务器认为该环境下不需要下载
+             */
+            @Override
+            public void onDownloadFinish(int stateCode) {
+                Log.i("X5_webView", "onDownloadFinished: " + stateCode);
+            }
+
+            /**
+             * @param stateCode 200、232安装成功
+             */
+            @Override
+            public void onInstallFinish(int stateCode) {
+                Log.i("X5_webView", "onInstallFinished: " + stateCode);
+            }
+
+            /**
+             * 首次安装应用，会触发内核下载，此时会有内核下载的进度回调。
+             * @param progress 0 - 100
+             */
+            @Override
+            public void onDownloadProgress(int progress) {
+                Log.i("X5_webView", "Core Downloading: " + progress);
+            }
+        });
 //        TBS内核首次使用和加载时，ART虚拟机会将Dex文件转为Oat，该过程由系统底层触发且耗时较长，很容易引起anr问题，解决方法是使用TBS的 ”dex2oat优化方案“。
 // 在调用TBS初始化、创建WebView之前进行如下配置
         HashMap map = new HashMap();
@@ -152,6 +180,7 @@ public class WebViewFlutterPlugin implements FlutterPlugin, ActivityAware,
             }
         };
         //x5内核初始化接口
+        QbSdk.setDownloadWithoutWifi(true);
         QbSdk.initX5Environment(context, cb);
     }
 
