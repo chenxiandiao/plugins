@@ -12,7 +12,7 @@
             android:label="dexopt"
             android:process=":dexopt"></service>
         <provider
-            android:name="io.flutter.plugins.x5webviewflutter.WebFileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true"
