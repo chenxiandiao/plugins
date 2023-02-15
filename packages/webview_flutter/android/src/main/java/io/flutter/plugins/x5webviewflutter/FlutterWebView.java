@@ -455,7 +455,7 @@ public class FlutterWebView implements PlatformView, MethodCallHandler {
         // Multi windows is set with FlutterWebChromeClient by default to handle internal bug:
         // b/159892679.
         webView.getSettings().setSupportMultipleWindows(true);
-
+        webView.getSettings().setTextZoom(100);
         // 允许webview对本机文件的操作
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setAllowFileAccessFromFileURLs(false);
